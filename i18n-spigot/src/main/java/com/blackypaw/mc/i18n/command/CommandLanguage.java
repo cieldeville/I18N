@@ -1,0 +1,86 @@
+package com.blackypaw.mc.i18n.command;
+
+import com.blackypaw.mc.i18n.I18NUtilities;
+import com.blackypaw.mc.i18n.ISO639;
+import com.blackypaw.mc.i18n.Localizer;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.Locale;
+
+/**
+ * Command executor for the /language command.
+ *
+ * @author BlackyPaw
+ * @version 1.0
+ */
+public class CommandLanguage implements CommandExecutor {
+
+	private final I18NUtilities plugin;
+	private final Localizer     commonLocalizer;
+	private final boolean       showNativeNames;
+
+	public CommandLanguage( final I18NUtilities plugin, final Localizer commonLocalizer, boolean showNativeNames ) {
+		this.plugin = plugin;
+		this.commonLocalizer = commonLocalizer;
+		this.showNativeNames = showNativeNames;
+	}
+	
+	@Override
+	public boolean onCommand( CommandSender sender, Command command, String label, String[] args ) {
+		if ( !(sender instanceof Player) ) {
+			sender.sendMessage( ChatColor.RED + "This command may only be used by players!" );
+			return true;
+		}
+
+		Player player = (Player) sender;
+		Locale locale = I18NUtilities.getPlayerLocale( player );
+
+		if ( args.length > 1 ) {
+			player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.syntax" ) );
+			return true;
+		}
+
+		if ( args.length == 0 ) {
+			// Display current locale:
+			player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.display", this.getLanguageName( locale.getLanguage() )) );
+		} else if ( args.length == 1 ) {
+			// Try to set current locale:
+
+			// Match ISO language code:
+			String iso = args[0];
+			if ( !iso.matches( "^[a-zA-Z]{2}$" ) ) {
+				player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.fail" ) );
+				return true;
+			}
+
+			Locale newLocale = new Locale( iso );
+			if ( !I18NUtilities.trySetPlayerLocale( player, newLocale ) ) {
+				player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.fail" ) );
+				return true;
+			}
+
+			player.sendMessage( this.commonLocalizer.translateDirect( newLocale, "com.blackypaw.mc.i18n.command.language.set", this.getLanguageName( newLocale.getLanguage() ) ) );
+		}
+
+		return true;
+	}
+
+	private String getLanguageName( String isoCode ) {
+		String name = null;
+		if ( this.showNativeNames ) {
+			name = ISO639.getNativeName( isoCode );
+		} else {
+			name = ISO639.getName( isoCode );
+		}
+
+		if ( name == null ) {
+			name = "Unknown";
+		}
+		return name;
+	}
+
+}

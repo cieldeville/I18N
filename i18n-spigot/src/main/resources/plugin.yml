@@ -1,0 +1,16 @@
+name: I18N
+version: ${project.version}
+main: com.blackypaw.mc.i18n.I18NUtilities
+author: BlackyPaw
+description: API for more thorough internationalization of plugins
+load: STARTUP
+website: https://www.blackypaw.com/
+database: false
+depend: [ProtocolLib]
+commands:
+  language:
+    description: Switches the active language of a player
+    aliases: [lang, i18n]
+    permission: com.blackypaw.mc.i18n.command.language
+    permission-message: You do not have sufficient privileges!
+    usage: Syntax error! Perhaps you meant /<command> [language]
