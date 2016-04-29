@@ -132,7 +132,7 @@ for all players without writing more than a single line of code.
 
 ### Translation Injection
 
-After you have acquired your own localizer instance, why not use it to actually send a message? Image you had
+After you have acquired your own localizer instance, why not use it to actually send a message? Imagine you had
 a translation key in your translation storage which looks roughly like this:
 
 ```
