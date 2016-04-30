@@ -27,11 +27,9 @@ import java.util.Properties;
  * @author BlackyPaw
  * @version 1.0
  */
-public class PropertyTranslationStorage extends TranslationStorage {
+public class PropertyTranslationStorage extends TranslationStorageAdapter {
 
 	private final File baseDirectory;
-
-	private Map<Locale, Map<Integer, String>> translations;
 
 	/**
 	 * Constructs a new property translation storage. The created instance will attempt
@@ -47,7 +45,6 @@ public class PropertyTranslationStorage extends TranslationStorage {
 	public PropertyTranslationStorage( File directory ) {
 		super( false );
 		this.baseDirectory = directory;
-		this.translations = new HashMap<>();
 	}
 
 	/**
@@ -56,8 +53,6 @@ public class PropertyTranslationStorage extends TranslationStorage {
 	 * locale specific translations are stored in. The files are expected to be named
 	 * after the language code of the respective language, e.g. en.properties or
 	 * de.properties.
-	 * <p>
-	 * Per default the created instance is not allowed to lazy load any translations.
 	 *
 	 * @param directory The directory all property files are stored in
 	 * @param lazyLoad Whether or not lazy loading of translations should be allowed
@@ -65,7 +60,6 @@ public class PropertyTranslationStorage extends TranslationStorage {
 	public PropertyTranslationStorage( File directory, boolean lazyLoad ) {
 		super( lazyLoad );
 		this.baseDirectory = directory;
-		this.translations = new HashMap<>();
 	}
 
 	@Override
@@ -101,64 +95,6 @@ public class PropertyTranslationStorage extends TranslationStorage {
 		}
 
 		this.translations.put( locale, translation );
-	}
-
-	@Override
-	protected String getRawTranslation( Locale locale, String key ) {
-		return this.getRawTranslation( locale, FNVHash.hash1a32( key ) );
-	}
-
-	@Override
-	protected String getRawTranslation( Locale locale, int keyHash ) {
-		Map<Integer, String> translation = this.translations.get( locale );
-
-		if ( translation == null ) {
-			if ( this.lazyLoad ) {
-				try {
-					this.loadLanguage( locale );
-				} catch ( IOException ignored ) {
-					// Ignored - returned string will indicate error anyways
-				}
-
-				translation = this.translations.get( locale );
-				if ( translation == null ) {
-					// Last chance - maybe the fallback locale may be used:
-					if ( !I18NUtilities.shouldUseFallbackLocale() || ( translation = this.translations.get( I18NUtilities.getFallbackLocale() ) ) == null ) {
-						// No translation available:
-						return TranslationStorage.ENOTRANS;
-					}
-				}
-			} else {
-				// Last chance - maybe the fallback locale may be used:
-				if ( !I18NUtilities.shouldUseFallbackLocale() || ( translation = this.translations.get( I18NUtilities.getFallbackLocale() ) ) == null ) {
-					// Locale not loaded:
-					return TranslationStorage.ELOCNL;
-				}
-			}
-		}
-
-		String raw = translation.get( keyHash );
-		if ( raw == null ) {
-			// Last chance - maybe there is a translation in the fallback locale:
-			if ( I18NUtilities.shouldUseFallbackLocale() && !locale.equals( I18NUtilities.getFallbackLocale() ) ) {
-				translation = this.translations.get( I18NUtilities.getFallbackLocale() );
-				if ( translation != null ) {
-					raw = translation.get( keyHash );
-					if ( raw == null ) {
-						// No translation available:
-						return TranslationStorage.ENOTRANS;
-					}
-				} else {
-					// No translation available:
-					return TranslationStorage.ENOTRANS;
-				}
-			} else {
-				// No translation available:
-				return TranslationStorage.ENOTRANS;
-			}
-		}
-
-		return raw;
 	}
 
 }
