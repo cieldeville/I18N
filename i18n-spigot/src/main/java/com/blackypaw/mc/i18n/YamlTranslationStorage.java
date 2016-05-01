@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -77,18 +78,50 @@ public class YamlTranslationStorage extends TranslationStorageAdapter {
 				Map<String, Object> translationParsed = (Map<String, Object>) parsed;
 				Map<Integer, String> translation = new HashMap<>();
 
-				for ( Map.Entry<String, Object> translationEntry : translationParsed.entrySet() ) {
-					int hash = FNVHash.hash1a32( translationEntry.getKey() );
-					if ( translation.containsKey( hash ) ) {
-						throw new IOException( "Colliding hash codes for distinct translation keys: '" + translationEntry.getKey() + "'; please rename the translation key" );
-					}
-					translation.put( hash, translationEntry.getValue().toString() );
-				}
+				this.addTranslationKeyMap( translation, translationParsed, new StringBuilder() );
 
 				this.translations.put( locale, translation );
 			} else {
 				throw new IOException( "Failed to load YAML translation file '" + translationFile + "': YAML data could not be converted to a Map. Please review the file and ensure that it does only contain key-value pairs" );
 			}
+		}
+	}
+
+	@SuppressWarnings( "unchecked" )
+	private void addTranslationKey( Map<Integer, String> translation, Map.Entry<String, Object> entry, StringBuilder keyBuilder ) throws IOException {
+		int rollback = keyBuilder.length();
+
+		keyBuilder.append( entry.getKey() );
+		Object value = entry.getValue();
+		if ( value instanceof String ) {
+			// Direct translation key:
+			String translationKey = keyBuilder.toString();
+			int hash = FNVHash.hash1a32( translationKey );
+			if ( translation.containsKey( hash ) ) {
+				throw new IOException( "Colliding hash codes for distinct translation keys: '" + translationKey + "'; please rename the translation key" );
+			}
+			translation.put( hash, (String) value );
+		} else if ( value instanceof List ) {
+			// A list of sub-translation keys:
+			keyBuilder.append( '.' );
+
+			for ( Object field : (List) value ) {
+				// List elements must be object maps:
+				if ( field instanceof Map ) {
+					this.addTranslationKeyMap( translation, (Map<String, Object>) field, keyBuilder );
+				}
+			}
+		} else if ( value instanceof Map ) {
+			keyBuilder.append( '.' );
+			this.addTranslationKeyMap( translation, (Map<String, Object>) value, keyBuilder );
+		}
+
+		keyBuilder.setLength( rollback );
+	}
+
+	private void addTranslationKeyMap( Map<Integer, String> translation, Map<String, Object> map, StringBuilder keyBuilder ) throws IOException {
+		for ( Map.Entry<String, Object> translationEntry : map.entrySet() ) {
+			this.addTranslationKey( translation, translationEntry, keyBuilder );
 		}
 	}
 
