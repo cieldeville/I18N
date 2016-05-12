@@ -10,7 +10,6 @@ package com.blackypaw.mc.i18n.command;
 import com.blackypaw.mc.i18n.I18NUtilities;
 import com.blackypaw.mc.i18n.ISO639;
 import com.blackypaw.mc.i18n.Localizer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

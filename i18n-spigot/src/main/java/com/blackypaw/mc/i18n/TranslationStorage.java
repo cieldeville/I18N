@@ -9,7 +9,6 @@ package com.blackypaw.mc.i18n;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * TranslationStorages function as lookup tables for actual translation strings in different

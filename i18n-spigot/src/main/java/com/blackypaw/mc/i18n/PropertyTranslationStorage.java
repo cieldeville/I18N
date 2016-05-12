@@ -7,8 +7,6 @@
 
 package com.blackypaw.mc.i18n;
 
-import com.sun.imageio.plugins.common.I18N;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;

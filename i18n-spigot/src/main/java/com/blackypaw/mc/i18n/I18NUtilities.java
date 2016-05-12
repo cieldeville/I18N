@@ -314,6 +314,7 @@ public class I18NUtilities extends JavaPlugin {
 		this.installChatInterceptor( protocolManager );
 		this.installTitleInterceptor( protocolManager );
 		this.installScoreboardInterceptors( protocolManager );
+		this.installSignInterceptor( protocolManager );
 	}
 
 	/**
@@ -411,12 +412,12 @@ public class I18NUtilities extends JavaPlugin {
 				int mode = packet.getIntegers().read( 1 );
 				if ( mode == 0 || mode == 2 ) {
 					String displayName = packet.getStrings().read( 1 );
-					String prefix = packet.getStrings().read( 2 );
-					String suffix = packet.getStrings().read( 3 );
+					String prefix      = packet.getStrings().read( 2 );
+					String suffix      = packet.getStrings().read( 3 );
 
 					String translatedDisplayName = self.translateMessageIfAppropriate( locale, displayName );
-					String translatedPrefix = self.translateMessageIfAppropriate( locale, prefix );
-					String translatedSuffix = self.translateMessageIfAppropriate( locale, suffix );
+					String translatedPrefix      = self.translateMessageIfAppropriate( locale, prefix );
+					String translatedSuffix      = self.translateMessageIfAppropriate( locale, suffix );
 
 					if ( displayName != translatedDisplayName ) {
 						packet.getStrings().write( 1, translatedDisplayName );
@@ -435,7 +436,7 @@ public class I18NUtilities extends JavaPlugin {
 					List<String> entries = (List<String>) packet.getSpecificModifier( Collection.class ).read( 0 );
 					if ( entries.size() > 0 ) {
 						for ( int i = 0; i < entries.size(); ++i ) {
-							String entry = entries.get( i );
+							String entry           = entries.get( i );
 							String translatedEntry = self.translateMessageIfAppropriate( locale, entry );
 
 							if ( entry != translatedEntry ) {
@@ -443,6 +444,40 @@ public class I18NUtilities extends JavaPlugin {
 							}
 						}
 					}
+				}
+			}
+		} );
+	}
+
+	private void installSignInterceptor( ProtocolManager protocolManager ) {
+		final I18NUtilities self = this;
+
+		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Server.UPDATE_SIGN ) {
+			@Override
+			public void onPacketSending( PacketEvent event ) {
+				final Player          player = event.getPlayer();
+				final PacketContainer packet = event.getPacket();
+				final Locale          locale = self.getLocale( player );
+
+				// Translate all four lines if necessary:
+				boolean changed = false;
+				WrappedChatComponent[] chatComponents = packet.getChatComponentArrays().read( 0 );
+				for ( int i = 0; i < chatComponents.length; ++i ) {
+					WrappedChatComponent chat = chatComponents[i];
+					if ( chat != null ) {
+						String message = self.restoreTextFromChatComponent( chat );
+						String translated = self.translateMessageIfAppropriate( locale, message );
+
+						if ( message != translated ) {
+							chatComponents[i] = WrappedChatComponent.fromText( translated );
+							changed = true;
+						}
+					}
+				}
+
+				if ( changed ) {
+					// Only write back when really needed:
+					packet.getChatComponentArrays().write( 0, chatComponents );
 				}
 			}
 		} );
@@ -514,7 +549,7 @@ public class I18NUtilities extends JavaPlugin {
 	// ============================================= CLEANUP ============================================= //
 
 	private void destroyLocaleResolver() {
-		if( this.resolver != null ) {
+		if ( this.resolver != null ) {
 			if ( this.resolver instanceof DatabaseLocaleResolver ) {
 				( (DatabaseLocaleResolver) this.resolver ).close();
 			}
