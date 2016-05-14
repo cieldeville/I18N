@@ -11,6 +11,7 @@ import com.blackypaw.mc.i18n.chat.ChatComponent;
 import com.blackypaw.mc.i18n.chat.ChatComponentDeserializer;
 import com.blackypaw.mc.i18n.command.CommandLanguage;
 import com.blackypaw.mc.i18n.config.PluginConfig;
+import com.blackypaw.mc.i18n.event.PlayerSetLanguageEvent;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -22,7 +23,10 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -120,6 +124,12 @@ public class I18NUtilities extends JavaPlugin {
 	public static boolean trySetPlayerLocale( Player player, Locale locale ) {
 		if ( instance.resolver.trySetPlayerLocale( player, locale ) ) {
 			instance.storeLocale( player, locale );
+
+			// Call a player set language event so that other plugins can resend
+			// scoreboards, signs, etc.:
+			PlayerSetLanguageEvent event = new PlayerSetLanguageEvent( player, locale );
+			Bukkit.getServer().getPluginManager().callEvent( event );
+
 			return true;
 		}
 		return false;
