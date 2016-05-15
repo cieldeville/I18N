@@ -29,9 +29,9 @@ public class PacketListener {
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(Bukkit.getPluginManager().getPlugin("I18N"), PacketType.Play.Client.SETTINGS) {
 
             @Override
-            public void onPacketReceiving(PacketEvent event) {
-                Locale locale = new Locale(event.getPacket().getStrings().readSafely(0).substring(0, 2));
-                I18NUtilities.trySetPlayerLocale(event.getPlayer(), locale);
+            public void onPacketReceiving( PacketEvent event ) {
+                Locale locale = new Locale( event.getPacket().getStrings().readSafely(0).substring(0, 2) );
+                I18NUtilities.trySetPlayerLocale( event.getPlayer(), locale );
             }
 
         });
