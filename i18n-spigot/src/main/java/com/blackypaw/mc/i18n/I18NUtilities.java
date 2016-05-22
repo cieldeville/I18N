@@ -26,8 +26,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,13 +33,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Main class of the I18N utility plugin. Provides factory methods for localizers as well as a
@@ -234,6 +226,8 @@ public class I18NUtilities extends JavaPlugin {
 		this.getCommand( "language" ).setExecutor( new CommandLanguage( this, this.commonLocalizer, this.config.isUseNativeLanguageNames() ) );
 
 		this.installInterceptors();
+
+		new PacketListener();
 	}
 
 	@Override
