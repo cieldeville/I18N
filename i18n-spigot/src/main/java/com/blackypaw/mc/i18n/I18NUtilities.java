@@ -11,6 +11,7 @@ import com.blackypaw.mc.i18n.chat.ChatComponent;
 import com.blackypaw.mc.i18n.chat.ChatComponentDeserializer;
 import com.blackypaw.mc.i18n.command.CommandLanguage;
 import com.blackypaw.mc.i18n.config.PluginConfig;
+import com.blackypaw.mc.i18n.event.PlayerLanguageSettingEvent;
 import com.blackypaw.mc.i18n.event.PlayerSetLanguageEvent;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -325,6 +326,7 @@ public class I18NUtilities extends JavaPlugin {
 		this.installTitleInterceptor( protocolManager );
 		this.installScoreboardInterceptors( protocolManager );
 		this.installSignInterceptor( protocolManager );
+		this.installSettingsInterceptor( protocolManager );
 	}
 
 	/**
@@ -491,6 +493,21 @@ public class I18NUtilities extends JavaPlugin {
 				}
 			}
 		} );
+	}
+
+	private void installSettingsInterceptor( ProtocolManager protocolManager ) {
+		final I18NUtilities self = this;
+
+		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS ) {
+			@Override
+			public void onPacketReceiving( PacketEvent event ) {
+				final Player player = event.getPlayer();
+				final Locale language = new Locale( event.getPacket().getStrings().read( 0 ).substring( 0, 2 ) );
+
+				PlayerLanguageSettingEvent call = new PlayerLanguageSettingEvent( player, language );
+				Bukkit.getServer().getPluginManager().callEvent( call );
+			}
+		});
 	}
 
 	private String restoreTextFromChatComponent( WrappedChatComponent component ) {
