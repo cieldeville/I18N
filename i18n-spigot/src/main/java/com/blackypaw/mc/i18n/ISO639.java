@@ -8,7 +8,11 @@
 package com.blackypaw.mc.i18n;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +58,7 @@ public final class ISO639 {
 
 	static {
 		try {
-			try ( BufferedInputStream in = new BufferedInputStream( ISO639.class.getResourceAsStream( "/mappings/iso639_native.properties" ) ) ) {
+			try ( Reader in = new BufferedReader( new InputStreamReader( new BufferedInputStream( ISO639.class.getResourceAsStream( "/mappings/iso639_native.properties" ) ), StandardCharsets.UTF_8 ) ) ) {
 				Properties properties = new Properties();
 				properties.load( in );
 
@@ -69,7 +73,7 @@ public final class ISO639 {
 		}
 
 		try {
-			try ( BufferedInputStream in = new BufferedInputStream( ISO639.class.getResourceAsStream( "/mappings/iso639_english.properties" ) ) ) {
+			try ( Reader in = new BufferedReader( new InputStreamReader( new BufferedInputStream( ISO639.class.getResourceAsStream( "/mappings/iso639_english.properties" ) ), StandardCharsets.UTF_8 ) ) ) {
 				Properties properties = new Properties();
 				properties.load( in );
 

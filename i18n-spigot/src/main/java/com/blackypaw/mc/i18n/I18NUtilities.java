@@ -32,8 +32,12 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -303,7 +307,7 @@ public class I18NUtilities extends JavaPlugin {
 	private void tryLoadCommonLanguage( PropertyTranslationStorage storage, Locale locale ) {
 		// Try to load the given common language from the plugin's classpath:
 		try {
-			try ( BufferedInputStream in = new BufferedInputStream( this.getClass().getResourceAsStream( "/translations/" + locale.getLanguage() + ".properties" ) ) ) {
+			try ( Reader in = new BufferedReader( new InputStreamReader( new BufferedInputStream( this.getClass().getResourceAsStream( "/translations/" + locale.getLanguage() + ".properties" ) ), StandardCharsets.UTF_8 ) ) ) {
 				Properties properties = new Properties();
 				properties.load( in );
 				storage.loadLanguage( locale, properties );
