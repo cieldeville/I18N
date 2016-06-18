@@ -26,8 +26,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -39,6 +39,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -297,6 +298,10 @@ public class I18NUtilities extends JavaPlugin {
 
 	// ============================================= INTERNATIONALIZATION ============================================= //
 
+	private boolean isTranslateable( String message ) {
+		return ( message.startsWith( "trns" ) || message.startsWith( "injc" ) );
+	}
+
 	private TranslationStorage prepareCommonStorage( File translationDirectory ) {
 		PropertyTranslationStorage storage = new PropertyTranslationStorage( translationDirectory, this.config.isAllowUserTranslations() );
 		this.tryLoadCommonLanguage( storage, Locale.ENGLISH );
@@ -331,6 +336,7 @@ public class I18NUtilities extends JavaPlugin {
 		this.installScoreboardInterceptors( protocolManager );
 		this.installSignInterceptor( protocolManager );
 		this.installSettingsInterceptor( protocolManager );
+		this.installSlotInterceptors( protocolManager );
 	}
 
 	/**
@@ -476,12 +482,12 @@ public class I18NUtilities extends JavaPlugin {
 				final Locale          locale = self.getLocale( player );
 
 				// Translate all four lines if necessary:
-				boolean changed = false;
+				boolean                changed        = false;
 				WrappedChatComponent[] chatComponents = packet.getChatComponentArrays().read( 0 );
 				for ( int i = 0; i < chatComponents.length; ++i ) {
 					WrappedChatComponent chat = chatComponents[i];
 					if ( chat != null ) {
-						String message = self.restoreTextFromChatComponent( chat );
+						String message    = self.restoreTextFromChatComponent( chat );
 						String translated = self.translateMessageIfAppropriate( locale, message );
 
 						if ( message != translated ) {
@@ -505,13 +511,109 @@ public class I18NUtilities extends JavaPlugin {
 		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS ) {
 			@Override
 			public void onPacketReceiving( PacketEvent event ) {
-				final Player player = event.getPlayer();
+				final Player player   = event.getPlayer();
 				final Locale language = new Locale( event.getPacket().getStrings().read( 0 ).substring( 0, 2 ) );
 
 				PlayerLanguageSettingEvent call = new PlayerLanguageSettingEvent( player, language );
 				Bukkit.getServer().getPluginManager().callEvent( call );
 			}
-		});
+		} );
+	}
+
+	private void installSlotInterceptors( ProtocolManager protocolManager ) {
+		final I18NUtilities self = this;
+
+		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Server.SET_SLOT ) {
+			@Override
+			public void onPacketSending( PacketEvent event ) {
+				final Player          player   = event.getPlayer();
+				final PacketContainer packet   = event.getPacket();
+				final Locale          language = self.getLocale( player );
+
+				ItemStack stack = packet.getItemModifier().read( 0 );
+				if ( stack != null ) {
+					ItemMeta meta = stack.getItemMeta();
+					if ( meta == null ) {
+						return;
+					}
+					String message = meta.getDisplayName();
+					if ( message == null ) {
+						return;
+					}
+
+					//self.getLogger().info( "#SetSlot: Message of Item = " + message );
+					String translated = self.translateMessageIfAppropriate( language, message );
+
+					if ( message != translated ) {
+						// Only write back when really needed:
+
+						// Got to clone here as otherwise we might be modifying an instance that
+						// is actually also used by the inventory:
+						stack = stack.clone();
+						meta = stack.getItemMeta();
+						meta.setDisplayName( translated );
+						stack.setItemMeta( meta );
+						packet.getItemModifier().write( 0, stack );
+					}
+				}
+			}
+		} );
+
+		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Server.WINDOW_ITEMS ) {
+			@Override
+			public void onPacketSending( PacketEvent event ) {
+				final Player          player   = event.getPlayer();
+				final PacketContainer packet   = event.getPacket();
+				final Locale          language = self.getLocale( player );
+
+				boolean     changed = false;
+				ItemStack[] items   = packet.getItemArrayModifier().read( 0 );
+				if ( items != null ) {
+					for ( int i = 0; i < items.length; ++i ) {
+						ItemStack stack = items[i];
+						if ( stack == null ) {
+							continue;
+						}
+						ItemMeta meta = stack.getItemMeta();
+						if ( meta == null ) {
+							continue;
+						}
+						String message = meta.getDisplayName();
+						if ( message == null ) {
+							continue;
+						}
+
+						//self.getLogger().info( "#WindowItems: Message of Item = " + message );
+						String translated = self.translateMessageIfAppropriate( language, message );
+
+						if ( message != translated ) {
+							// Got to localize the item's display name:
+
+							if ( !changed ) {
+								// Construct a shallow clone of the array as we do NOT want
+								// to overwrite the original stack with the contents we modified:
+								items = Arrays.copyOf( items, items.length );
+							}
+
+							// Got to clone the item stack here in order not to modify its original
+							// reference as it might be in use by the actual inventory:
+							stack = stack.clone();
+							meta = stack.getItemMeta();
+							meta.setDisplayName( translated );
+							stack.setItemMeta( meta );
+							items[i] = stack;
+
+							changed = true;
+						}
+					}
+
+					if ( changed ) {
+						// Only write back when really needed:
+						packet.getItemArrayModifier().write( 0, items );
+					}
+				}
+			}
+		} );
 	}
 
 	private String restoreTextFromChatComponent( WrappedChatComponent component ) {
