@@ -13,6 +13,7 @@ features are currently working and tested under 1.9.2
 - [x] Actionbar translations
 - [x] Title / Subtitle translations
 - [x] Scoreboard translations (teams, objectives, scores)
+- [x] Sign translations
 
 I18N depends on ProtocolLib for its injection functionality.
 
