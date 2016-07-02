@@ -22,6 +22,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.comphenix.protocol.wrappers.nbt.NbtBase;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
+import com.comphenix.protocol.wrappers.nbt.NbtType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
@@ -162,7 +166,8 @@ public class I18NUtilities extends JavaPlugin {
 		final File pluginDirectory = this.getDataFolder();
 		if ( !pluginDirectory.exists() ) {
 			if ( !pluginDirectory.mkdirs() ) {
-				this.getLogger().severe( "Failed to create Plugin Data Folder; please double-check your filesystem permissions!" );
+				this.getLogger()
+				    .severe( "Failed to create Plugin Data Folder; please double-check your filesystem permissions!" );
 				pluginManager.disablePlugin( this );
 				return;
 			}
@@ -176,7 +181,8 @@ public class I18NUtilities extends JavaPlugin {
 		final File translationsDirectory = new File( pluginDirectory, "translations" );
 		if ( !translationsDirectory.exists() ) {
 			if ( !translationsDirectory.mkdirs() ) {
-				this.getLogger().severe( "Failed to create Translations Folder; please double-check your filesystem permissions!" );
+				this.getLogger()
+				    .severe( "Failed to create Translations Folder; please double-check your filesystem permissions!" );
 				pluginManager.disablePlugin( this );
 				return;
 			}
@@ -192,7 +198,8 @@ public class I18NUtilities extends JavaPlugin {
 			this.config.initialize( new File( pluginDirectory, "config.cfg" ) );
 		} catch ( IOException e ) {
 			e.printStackTrace();
-			this.getLogger().severe( "Failed to load / create configuration file; please double-check your filesystem permissions!" );
+			this.getLogger()
+			    .severe( "Failed to load / create configuration file; please double-check your filesystem permissions!" );
 			pluginManager.disablePlugin( this );
 			return;
 		}
@@ -205,7 +212,8 @@ public class I18NUtilities extends JavaPlugin {
 				break;
 			case "DATABASE":
 				try {
-					this.resolver = new DatabaseLocaleResolver( this.config.getDbHost(), this.config.getDbPort(), this.config.getDbUser(), this.config.getDbPassword(), this.config.getDbName(), this.config.getDbPrefix() );
+					this.resolver = new DatabaseLocaleResolver( this.config.getDbHost(), this.config.getDbPort(), this.config
+							.getDbUser(), this.config.getDbPassword(), this.config.getDbName(), this.config.getDbPrefix() );
 				} catch ( SQLException e ) {
 					e.printStackTrace();
 					this.getLogger().severe( "Failed to connect to MySQL instance" );
@@ -214,7 +222,8 @@ public class I18NUtilities extends JavaPlugin {
 				}
 				break;
 			default:
-				this.getLogger().severe( "Unknown default locale resolver; please use one of the documented constants!" );
+				this.getLogger()
+				    .severe( "Unknown default locale resolver; please use one of the documented constants!" );
 				pluginManager.disablePlugin( this );
 				return;
 		}
@@ -236,7 +245,8 @@ public class I18NUtilities extends JavaPlugin {
 		pluginManager.registerEvents( new PlayerQuitListener( this ), this );
 
 		// Register commands:
-		this.getCommand( "language" ).setExecutor( new CommandLanguage( this, this.commonLocalizer, this.config.isUseNativeLanguageNames() ) );
+		this.getCommand( "language" )
+		    .setExecutor( new CommandLanguage( this, this.commonLocalizer, this.config.isUseNativeLanguageNames() ) );
 
 		this.installInterceptors();
 	}
@@ -312,7 +322,9 @@ public class I18NUtilities extends JavaPlugin {
 	private void tryLoadCommonLanguage( PropertyTranslationStorage storage, Locale locale ) {
 		// Try to load the given common language from the plugin's classpath:
 		try {
-			try ( Reader in = new BufferedReader( new InputStreamReader( new BufferedInputStream( this.getClass().getResourceAsStream( "/translations/" + locale.getLanguage() + ".properties" ) ), StandardCharsets.UTF_8 ) ) ) {
+			try ( Reader in = new BufferedReader( new InputStreamReader( new BufferedInputStream( this.getClass()
+			                                                                                          .getResourceAsStream( "/translations/" + locale
+					                                                                                          .getLanguage() + ".properties" ) ), StandardCharsets.UTF_8 ) ) ) {
 				Properties properties = new Properties();
 				properties.load( in );
 				storage.loadLanguage( locale, properties );
@@ -474,35 +486,71 @@ public class I18NUtilities extends JavaPlugin {
 	private void installSignInterceptor( ProtocolManager protocolManager ) {
 		final I18NUtilities self = this;
 
-		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Server.UPDATE_SIGN ) {
+		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Server.TILE_ENTITY_DATA ) {
 			@Override
 			public void onPacketSending( PacketEvent event ) {
 				final Player          player = event.getPlayer();
 				final PacketContainer packet = event.getPacket();
 				final Locale          locale = self.getLocale( player );
 
-				// Translate all four lines if necessary:
-				boolean                changed        = false;
-				WrappedChatComponent[] chatComponents = packet.getChatComponentArrays().read( 0 );
-				for ( int i = 0; i < chatComponents.length; ++i ) {
-					WrappedChatComponent chat = chatComponents[i];
-					if ( chat != null ) {
-						String message    = self.restoreTextFromChatComponent( chat );
+				if ( packet.getIntegers().read( 0 ) == 0x09 ) {
+					// Update Block Entity -> Set Sign Text:
+					NbtBase<?> nbt = packet.getNbtModifier().read( 0 );
+					if ( nbt.getType() != NbtType.TAG_COMPOUND ) {
+						// Malformed Sign Entity:
+						return;
+					}
+
+					boolean changed = false;
+					NbtCompound compound = (NbtCompound) nbt;
+					for ( int i = 1; i <= 4; ++i ) {
+						final String key = "Text" + i;
+						String message    = self.gson.fromJson( compound.getString( key ), ChatComponent.class )
+						                             .getUnformattedText();
 						String translated = self.translateMessageIfAppropriate( locale, message );
 
 						if ( message != translated ) {
-							chatComponents[i] = WrappedChatComponent.fromText( translated );
+							if ( !changed ) {
+								nbt = compound.deepClone();
+								compound = (NbtCompound) nbt;
+							}
+							compound.put( key, WrappedChatComponent.fromText( translated ).getJson() );
 							changed = true;
 						}
 					}
-				}
 
-				if ( changed ) {
-					// Only write back when really needed:
-					packet.getChatComponentArrays().write( 0, chatComponents );
+					if ( changed ) {
+						packet.getNbtModifier().write( 0, nbt );
+					}
 				}
 			}
 		} );
+
+		protocolManager.addPacketListener( new PacketAdapter( this, ListenerPriority.LOWEST, PacketType.Play.Server.MAP_CHUNK ) {
+			@Override
+			public void onPacketSending( PacketEvent event ) {
+				final Player          player = event.getPlayer();
+				final PacketContainer packet = event.getPacket();
+				final Locale          locale = self.getLocale( player );
+
+				List handleList = packet.getSpecificModifier( List.class ).read( 0 );
+				for ( Object compoundHandle : handleList ) {
+					NbtCompound compound = NbtFactory.fromNMSCompound( compoundHandle );
+					if ( compound.getString( "id" ).equals( "Sign" ) ) {
+						for ( int i = 1; i <= 4; ++i ) {
+							final String key = "Text" + i;
+							String message    = self.gson.fromJson( compound.getString( key ), ChatComponent.class )
+							                             .getUnformattedText();
+							String translated = self.translateMessageIfAppropriate( locale, message );
+
+							if ( message != translated ) {
+								compound.put( key, WrappedChatComponent.fromText( translated ).getJson() );
+							}
+						}
+					}
+				}
+			}
+		});
 	}
 
 	private void installSettingsInterceptor( ProtocolManager protocolManager ) {
