@@ -47,8 +47,7 @@ public class CommandLanguage implements CommandExecutor {
 		Locale locale = I18NUtilities.getPlayerLocale( player );
 
 		if ( args.length > 1 ) {
-			//player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.syntax" ) );
-			player.sendMessage( this.commonLocalizer.inject( "com.blackypaw.mc.i18n.command.language.syntax" ) );
+			player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.syntax" ) );
 			return true;
 		}
 
