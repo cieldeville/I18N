@@ -9,6 +9,7 @@ package com.blackypaw.mc.i18n;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * TranslationStorages function as lookup tables for actual translation strings in different
@@ -67,6 +68,26 @@ public abstract class TranslationStorage {
 	public abstract void loadLanguage( Locale locale ) throws IOException;
 
 	/**
+	 * Loads all translations found inside the given map into the translation storage.
+	 * <p>
+	 * If the language has already been loaded before the results of this invocation will
+	 * overwrite any cached translations.
+	 * <p>
+	 * As there might be implementations that do not support loading translations from
+	 * maps this operation is not guaranteed to be supported by all translation storages.
+	 * Please refer to the documentation of the respective translation storage implementation
+	 * for further details (usually referred to as 'manual loading of translations'). If this
+	 * operation is not supported an UnsupportedOperationException is thrown.
+	 *
+	 * @param locale       The language to load
+	 * @param translations The translations to insert into the translation storage
+	 *
+	 * @throws IOException                   Thrown if the translations could not be loaded for a reason other than the method not being supported
+	 * @throws UnsupportedOperationException Thrown if the underlying implementation does not support loading from maps
+	 */
+	public abstract void loadLanguage( Locale locale, Map<String, String> translations ) throws IOException, UnsupportedOperationException;
+
+	/**
 	 * Translates a message.
 	 * <p>
 	 * Given the language to translate into, the translation key of the message to translate
@@ -81,13 +102,13 @@ public abstract class TranslationStorage {
 	 * which will be no longer than 16 characters so that it won't cause any troubles with
 	 * mechanisms like scoreboards. The following abbreviations may be returned:
 	 * <ol>
-	 *     <li>ELOCNL - The specified locale has not yet been loaded (will only be returned if lazy load is disabled)</li>
-	 *     <li>ENOTRANS - There is no translation for the given translation key in the specified locale</li>
+	 * <li>ELOCNL - The specified locale has not yet been loaded (will only be returned if lazy load is disabled)</li>
+	 * <li>ENOTRANS - There is no translation for the given translation key in the specified locale</li>
 	 * </ol>
 	 *
 	 * @param locale The language to translate into
-	 * @param key The translation key of the message to be translated
-	 * @param args Optional arguments to be inserted into the translation
+	 * @param key    The translation key of the message to be translated
+	 * @param args   Optional arguments to be inserted into the translation
 	 *
 	 * @return The translated string
 	 */
@@ -106,9 +127,9 @@ public abstract class TranslationStorage {
 	/**
 	 * See {@link #translate(Locale, String, Object...)}.
 	 *
-	 * @param locale The language to translate into
+	 * @param locale  The language to translate into
 	 * @param keyHash The translation key of the message to be translated
-	 * @param args Optional arguments to be inserted into the translation
+	 * @param args    Optional arguments to be inserted into the translation
 	 *
 	 * @return The translated string
 	 */
@@ -125,7 +146,6 @@ public abstract class TranslationStorage {
 	}
 
 
-
 	/**
 	 * Gets the raw translation of the given translation key for the specified locale.
 	 * "Raw" hereby means that no argument post-procession will be performed.
@@ -133,7 +153,7 @@ public abstract class TranslationStorage {
 	 * May return the special strings documented in {@link #translate(Locale, String, Object...)}.
 	 *
 	 * @param locale The locale to translate into
-	 * @param key The translation key of the message to be translated.
+	 * @param key    The translation key of the message to be translated.
 	 *
 	 * @return The raw translation of the given translation key for the specified locale
 	 */
@@ -142,7 +162,7 @@ public abstract class TranslationStorage {
 	/**
 	 * See {@link #getRawTranslation(Locale, String)}.
 	 *
-	 * @param locale The locale to translate into
+	 * @param locale  The locale to translate into
 	 * @param keyHash The hash value of the translation key of the message to be translated.
 	 *
 	 * @return The raw translation of the given translation key for the specified locale

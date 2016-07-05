@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Translation storage implementation supporting .yml files based off the
  * SnakeYaml parser already shipped as a dependency by Bukkit. Supports
- * lazy-loading.
+ * lazy-loading and manual loading of translations.
  *
  * @author BlackyPaw
  * @version 1.0

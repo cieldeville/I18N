@@ -30,6 +30,19 @@ abstract class TranslationStorageAdapter extends TranslationStorage {
 	}
 
 	@Override
+	public void loadLanguage( Locale locale, Map<String, String> translations ) throws IOException {
+		Map<Integer, String> hashedTranslations = new HashMap<>( translations.size() );
+		for ( Map.Entry<String, String> translation : translations.entrySet() ) {
+			int hash = FNVHash.hash1a32( translation.getKey() );
+			if ( hashedTranslations.containsKey( hash ) ) {
+				throw new IOException( "Colliding hash codes for distinct translation keys: '" + translation.getKey() + "'" );
+			}
+			hashedTranslations.put( hash, translation.getValue() );
+		}
+		this.translations.put( locale, hashedTranslations );
+	}
+
+	@Override
 	protected String getRawTranslation( Locale locale, String key ) {
 		return this.getRawTranslation( locale, FNVHash.hash1a32( key ) );
 	}

@@ -20,7 +20,7 @@ import java.util.Properties;
 
 /**
  * TranslationStorage implementation based on Java's .properties files. Supports
- * lazy loading.
+ * lazy loading and manual loading of translations.
  *
  * @author BlackyPaw
  * @version 1.0
