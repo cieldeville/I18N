@@ -21,14 +21,16 @@ import java.util.Map;
  * @version 1.0
  */
 abstract class TranslationStorageAdapter extends TranslationStorage {
-
+	
+	protected final I18N i18n;
 	protected Map<Locale, Map<Integer, String>> translations;
-
-	protected TranslationStorageAdapter( boolean lazyLoad ) {
+	
+	protected TranslationStorageAdapter( I18N i18n, boolean lazyLoad ) {
 		super( lazyLoad );
+		this.i18n = i18n;
 		this.translations = new HashMap<>();
 	}
-
+	
 	@Override
 	public void loadLanguage( Locale locale, Map<String, String> translations ) throws IOException {
 		Map<Integer, String> hashedTranslations = new HashMap<>( translations.size() );
@@ -41,16 +43,16 @@ abstract class TranslationStorageAdapter extends TranslationStorage {
 		}
 		this.translations.put( locale, hashedTranslations );
 	}
-
+	
 	@Override
 	protected String getRawTranslation( Locale locale, String key ) {
 		return this.getRawTranslation( locale, FNVHash.hash1a32( key ) );
 	}
-
+	
 	@Override
 	protected String getRawTranslation( Locale locale, int keyHash ) {
 		Map<Integer, String> translation = this.translations.get( locale );
-
+		
 		if ( translation == null ) {
 			if ( this.lazyLoad ) {
 				try {
@@ -58,29 +60,29 @@ abstract class TranslationStorageAdapter extends TranslationStorage {
 				} catch ( IOException ignored ) {
 					// Ignored - returned string will indicate error anyways
 				}
-
+				
 				translation = this.translations.get( locale );
 				if ( translation == null ) {
 					// Last chance - maybe the fallback locale may be used:
-					if ( !I18NUtilities.shouldUseFallbackLocale() || ( translation = this.translations.get( I18NUtilities.getFallbackLocale() ) ) == null ) {
+					if ( !this.i18n.shouldUseFallbackLocale() || ( translation = this.translations.get( this.i18n.getFallbackLocale() ) ) == null ) {
 						// No translation available:
 						return TranslationStorage.ENOTRANS;
 					}
 				}
 			} else {
 				// Last chance - maybe the fallback locale may be used:
-				if ( !I18NUtilities.shouldUseFallbackLocale() || ( translation = this.translations.get( I18NUtilities.getFallbackLocale() ) ) == null ) {
+				if ( !this.i18n.shouldUseFallbackLocale() || ( translation = this.translations.get( this.i18n.getFallbackLocale() ) ) == null ) {
 					// Locale not loaded:
 					return TranslationStorage.ELOCNL;
 				}
 			}
 		}
-
+		
 		String raw = translation.get( keyHash );
 		if ( raw == null ) {
 			// Last chance - maybe there is a translation in the fallback locale:
-			if ( I18NUtilities.shouldUseFallbackLocale() && !locale.equals( I18NUtilities.getFallbackLocale() ) ) {
-				translation = this.translations.get( I18NUtilities.getFallbackLocale() );
+			if ( this.i18n.shouldUseFallbackLocale() && !locale.equals( this.i18n.getFallbackLocale() ) ) {
+				translation = this.translations.get( this.i18n.getFallbackLocale() );
 				if ( translation != null ) {
 					raw = translation.get( keyHash );
 					if ( raw == null ) {
@@ -96,7 +98,7 @@ abstract class TranslationStorageAdapter extends TranslationStorage {
 				return TranslationStorage.ENOTRANS;
 			}
 		}
-
+		
 		return raw;
 	}
 }

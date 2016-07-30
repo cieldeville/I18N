@@ -21,10 +21,10 @@ import java.util.Map;
  */
 public abstract class TranslationStorage {
 
-	protected static final String ELOCNL   = "ELOCNL";
-	protected static final String ENOTRANS = "ENOTRANS";
-	protected static final String ENOLCLZR = "ENOLCLZR";
-	protected static final String ENOINJHD = "ENOINJHD";
+	public static final String ELOCNL   = "ELOCNL";
+	public static final String ENOTRANS = "ENOTRANS";
+	public static final String ENOLCLZR = "ENOLCLZR";
+	public static final String ENOINJHD = "ENOINJHD";
 
 	/**
 	 * Specifies whether or not the translation storage is allowed to attempt to load

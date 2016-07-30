@@ -22,15 +22,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
  */
 class PlayerQuitListener implements Listener {
 
-	private I18NUtilities utilities;
+	private I18NSpigotImpl i18n;
 
 	/**
 	 * Constructs a new player quit listener.
 	 *
-	 * @param utilities The I18N plugin instance
+	 * @param i18n The I18N instance
 	 */
-	public PlayerQuitListener( I18NUtilities utilities ) {
-		this.utilities = utilities;
+	public PlayerQuitListener( I18NSpigotImpl i18n ) {
+		this.i18n = i18n;
 	}
 
 	/**
@@ -56,7 +56,7 @@ class PlayerQuitListener implements Listener {
 	}
 
 	private void onPlayerLeft( Player player ) {
-		this.utilities.unstoreLocale( player );
+		this.i18n.unstoreLocale( player.getUniqueId() );
 	}
 
 }

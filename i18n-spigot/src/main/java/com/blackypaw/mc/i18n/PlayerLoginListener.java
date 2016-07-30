@@ -23,15 +23,15 @@ import java.util.Locale;
  */
 class PlayerLoginListener implements Listener {
 
-	private I18NUtilities utilities;
+	private I18NSpigotImpl i18n;
 
 	/**
 	 * Constructs a new player login listener.
 	 *
-	 * @param utilities The I18N plugin instance
+	 * @param i18n The I18N instance
 	 */
-	public PlayerLoginListener( I18NUtilities utilities ) {
-		this.utilities = utilities;
+	public PlayerLoginListener( I18NSpigotImpl i18n ) {
+		this.i18n = i18n;
 	}
 
 	/**
@@ -42,8 +42,8 @@ class PlayerLoginListener implements Listener {
 	@EventHandler( priority = EventPriority.LOWEST, ignoreCancelled = true )
 	public void onPlayerLogin( PlayerLoginEvent event ) {
 		Player player = event.getPlayer();
-		Locale locale = this.utilities.getLocaleResolver().resolveLocale( player );
-		this.utilities.storeLocale( player, locale );
+		Locale locale = this.i18n.getLocaleResolver().resolveLocale( player.getUniqueId() );
+		this.i18n.storeLocale( player.getUniqueId(), locale );
 	}
 
 }

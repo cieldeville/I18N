@@ -7,10 +7,10 @@
 
 package com.blackypaw.mc.i18n;
 
-import org.bukkit.plugin.Plugin;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Localizer factory which keeps references to all localizers it instantiated for
@@ -21,18 +21,18 @@ import java.util.Map;
  */
 class LocalizerFactory {
 
-	private Plugin plugin;
-	private Map<Integer, Localizer> localizers;
-	private int nextId;
+	private Logger                                logger;
+	private Map<Integer, InjectionAwareLocalizer> localizers;
+	private int                                   nextId;
 
 	/**
-	 * Constructs a new localizer factory that will be attached
-	 * to the given plugin (required for packet interception).
+	 * Constructs a new localizer factory that will use the
+	 * given logger for logging messages.
 	 *
-	 * @param plugin The plugin to attach the factory to
+	 * @param logger The logger to use
 	 */
-	public LocalizerFactory( Plugin plugin ) {
-		this.plugin = plugin;
+	LocalizerFactory( Logger logger ) {
+		this.logger = logger;
 		this.localizers = new HashMap<>();
 		this.nextId = 0;
 	}
@@ -43,9 +43,9 @@ class LocalizerFactory {
 	 *
 	 * @param storage The translation storage to use for translating messages
 	 */
-	public Localizer createInstance( TranslationStorage storage ) {
-		int id = this.nextId++;
-		Localizer localizer = new Localizer( id, storage );
+	InjectionAwareLocalizer createInstance( TranslationStorage storage ) {
+		int                     id        = this.nextId++;
+		InjectionAwareLocalizer localizer = new LocalizerSpigotImpl( id, storage );
 		this.localizers.put( id, localizer );
 		return localizer;
 	}
@@ -57,17 +57,21 @@ class LocalizerFactory {
 	 *
 	 * @return The instance if found or null otherwise
 	 */
-	public Localizer findInstance( int id ) {
+	InjectionAwareLocalizer findInstance( int id ) {
 		return this.localizers.get( id );
 	}
 
 	/**
 	 * Disposes the factory and all localizers it created.
 	 */
-	public void dispose() {
+	void dispose() {
 		// Disposes all localizers the factory created:
 		for ( Localizer localizer : this.localizers.values() ) {
-			localizer.dispose();
+			try {
+				localizer.close();
+			} catch ( Exception e ) {
+				this.logger.log( Level.WARNING, "Failed to close localizer", e );
+			}
 		}
 	}
 	

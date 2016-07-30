@@ -42,8 +42,8 @@ public class YamlTranslationStorage extends TranslationStorageAdapter {
 	 *
 	 * @param directory The directory all property files are stored in
 	 */
-	public YamlTranslationStorage( File directory ) {
-		super( false );
+	public YamlTranslationStorage( I18N i18n, File directory ) {
+		super( i18n, false );
 		this.baseDirectory = directory;
 	}
 
@@ -57,8 +57,8 @@ public class YamlTranslationStorage extends TranslationStorageAdapter {
 	 * @param directory The directory all property files are stored in
 	 * @param lazyLoad Whether or not lazy loading of translations should be allowed
 	 */
-	public YamlTranslationStorage( File directory, boolean lazyLoad ) {
-		super( lazyLoad );
+	public YamlTranslationStorage( I18N i18n, File directory, boolean lazyLoad ) {
+		super( i18n, lazyLoad );
 		this.baseDirectory = directory;
 	}
 

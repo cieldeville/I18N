@@ -40,8 +40,8 @@ public class PropertyTranslationStorage extends TranslationStorageAdapter {
 	 *
 	 * @param directory The directory all property files are stored in
 	 */
-	public PropertyTranslationStorage( File directory ) {
-		super( false );
+	public PropertyTranslationStorage( I18N i18n, File directory ) {
+		super( i18n, false );
 		this.baseDirectory = directory;
 	}
 
@@ -55,8 +55,8 @@ public class PropertyTranslationStorage extends TranslationStorageAdapter {
 	 * @param directory The directory all property files are stored in
 	 * @param lazyLoad Whether or not lazy loading of translations should be allowed
 	 */
-	public PropertyTranslationStorage( File directory, boolean lazyLoad ) {
-		super( lazyLoad );
+	public PropertyTranslationStorage( I18N i18n, File directory, boolean lazyLoad ) {
+		super( i18n, lazyLoad );
 		this.baseDirectory = directory;
 	}
 

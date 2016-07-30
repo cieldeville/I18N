@@ -12,7 +12,7 @@ package com.blackypaw.mc.i18n;
  * as neither the handle itself nor the localizer that created it get disposed, any message equal
  * to the encoded string of this handle will be translated with the message identified by the
  * translation key specified during creation of the handle. Also, unlike a direct injection string
- * as produced by {@link Localizer#inject(String)} strings injected via injection handles can
+ * as produced by {@link InjectionAwareLocalizer#inject(String)} strings injected via injection handles can
  * optionally have one or more additional arguments which will be inserted into the translation.
  * It is the user's obligation to dispose the handle when no longer needed and to ensure that all
  * packets containing the handle's encoded string have been sent out before the handle gets
@@ -24,14 +24,14 @@ package com.blackypaw.mc.i18n;
  */
 public class InjectionHandle {
 
-	private final Localizer localizer;
-	private final int id;
-	private final String key;
-	private final Object[] args;
+	private final InjectionAwareLocalizer localizer;
+	private final int                     id;
+	private final String                  key;
+	private final Object[]                args;
 
 	private final String encoded;
 
-	InjectionHandle( Localizer localizer, int id, String key, Object... args ) {
+	InjectionHandle( InjectionAwareLocalizer localizer, int id, String key, Object... args ) {
 		this.localizer = localizer;
 		this.id = id;
 		this.key = key;

@@ -7,8 +7,6 @@
 
 package com.blackypaw.mc.i18n;
 
-import org.bukkit.entity.Player;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * LocaleResolver implementation which will query a MySQL database for player locales and optionally save
@@ -26,7 +25,7 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class DatabaseLocaleResolver implements LocaleResolver {
+public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseable {
 
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_URL      = "jdbc:mysql://%s:%d/%s";
@@ -35,9 +34,12 @@ class DatabaseLocaleResolver implements LocaleResolver {
 	private final Connection connection;
 	private final String dbPrefix;
 	private final String localeTable;
+	
+	private final I18N i18n;
 
-	DatabaseLocaleResolver( String dbHost, int dbPort, String dbUser, String dbPassword, String dbName, String dbPrefix ) throws SQLException {
+	DatabaseLocaleResolver( I18N i18n, String dbHost, int dbPort, String dbUser, String dbPassword, String dbName, String dbPrefix ) throws SQLException {
 		try {
+			this.i18n = i18n;
 			this.dbPrefix = dbPrefix;
 			this.localeTable = this.dbPrefix + LOCALE_TABLE_NAME;
 
@@ -66,35 +68,35 @@ class DatabaseLocaleResolver implements LocaleResolver {
 	}
 
 	@Override
-	public Locale resolveLocale( Player player ) {
+	public Locale resolveLocale( UUID player ) {
 		Locale locale;
 		try {
 			try ( PreparedStatement statement = this.connection.prepareStatement( "SELECT * FROM `" + this.localeTable + "` WHERE `uuid`=? LIMIT 1;" ) ) {
-				statement.setString( 1, player.getUniqueId().toString() );
+				statement.setString( 1, player.toString() );
 				try ( ResultSet result = statement.executeQuery() ) {
 					if ( result.next() ) {
 						// Found a result!
 						locale = new Locale( result.getString( "locale" ) );
 					} else {
 						// No result found - insert fallback locale
-						locale = I18NUtilities.getFallbackLocale();
+						locale = this.i18n.getFallbackLocale();
 						this.insertPlayerLocale( player, locale );
 					}
 				}
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
-			return I18NUtilities.getFallbackLocale();
+			return this.i18n.getFallbackLocale();
 		}
 
 		return locale;
 	}
 
 	@Override
-	public boolean trySetPlayerLocale( Player player, Locale locale ) {
+	public boolean trySetPlayerLocale( UUID player, Locale locale ) {
 		try {
 			try ( PreparedStatement statement = this.connection.prepareStatement( "SELECT * FROM `" + this.localeTable + "` WHERE `uuid`=? LIMIT 1;" ) ) {
-				statement.setString( 1, player.getUniqueId().toString() );
+				statement.setString( 1, player.toString() );
 				try ( ResultSet result = statement.executeQuery() ) {
 					if ( result.next() ) {
 						// Row does already exist:
@@ -153,10 +155,10 @@ class DatabaseLocaleResolver implements LocaleResolver {
 	 *
 	 * @throws SQLException Thrown in case the underlying MySQL query failed
 	 */
-	private void insertPlayerLocale( Player player, Locale locale ) throws SQLException {
+	private void insertPlayerLocale( UUID player, Locale locale ) throws SQLException {
 		try ( PreparedStatement insert = this.connection.prepareStatement( "INSERT INTO `" + this.localeTable + "` (`uuid`, `locale`) VALUES(?, ?);" ) ) {
-			locale = I18NUtilities.getFallbackLocale();
-			insert.setString( 1, player.getUniqueId().toString() );
+			locale = this.i18n.getFallbackLocale();
+			insert.setString( 1, player.toString() );
 			insert.setString( 2, locale.getLanguage() );
 			insert.executeUpdate();
 		}

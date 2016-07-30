@@ -7,8 +7,6 @@
 
 package com.blackypaw.mc.i18n;
 
-import org.bukkit.entity.Player;
-
 import java.util.Locale;
 
 /**
@@ -18,7 +16,7 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class ConstantLocaleResolver implements LocaleResolver {
+public class ConstantLocaleResolver<Key> implements LocaleResolver<Key> {
 
 	private final Locale locale;
 
@@ -32,12 +30,12 @@ class ConstantLocaleResolver implements LocaleResolver {
 	}
 
 	@Override
-	public Locale resolveLocale( Player player ) {
+	public Locale resolveLocale( Key player ) {
 		return this.locale;
 	}
 
 	@Override
-	public boolean trySetPlayerLocale( Player player, Locale locale ) {
+	public boolean trySetPlayerLocale( Key player, Locale locale ) {
 		// Cannot change player locales with constant locale resolver:
 		return false;
 	}
