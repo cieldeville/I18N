@@ -45,7 +45,7 @@ public class CommandLanguage implements CommandExecutor {
 		}
 		
 		Player player = (Player) sender;
-		Locale locale = this.i18n.getPlayerLocale( player.getUniqueId() );
+		Locale locale = this.i18n.getLocale( player.getUniqueId() );
 		
 		if ( args.length > 1 ) {
 			player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.syntax" ) );
@@ -66,7 +66,7 @@ public class CommandLanguage implements CommandExecutor {
 			}
 			
 			Locale newLocale = new Locale( iso );
-			if ( !this.i18n.trySetPlayerLocale( player.getUniqueId(), newLocale ) ) {
+			if ( !this.i18n.trySetLocale( player.getUniqueId(), newLocale ) ) {
 				player.sendMessage( this.commonLocalizer.translateDirect( locale, "com.blackypaw.mc.i18n.command.language.fail" ) );
 				return true;
 			}

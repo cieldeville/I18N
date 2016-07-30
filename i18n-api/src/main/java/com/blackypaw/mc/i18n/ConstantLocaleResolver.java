@@ -30,12 +30,12 @@ public class ConstantLocaleResolver<Key> implements LocaleResolver<Key> {
 	}
 
 	@Override
-	public Locale resolveLocale( Key player ) {
+	public Locale resolveLocale( Key key ) {
 		return this.locale;
 	}
 
 	@Override
-	public boolean trySetPlayerLocale( Key player, Locale locale ) {
+	public boolean trySetPlayerLocale( Key key, Locale locale ) {
 		// Cannot change player locales with constant locale resolver:
 		return false;
 	}

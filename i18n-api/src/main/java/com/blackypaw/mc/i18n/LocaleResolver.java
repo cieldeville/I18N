@@ -10,9 +10,12 @@ package com.blackypaw.mc.i18n;
 import java.util.Locale;
 
 /**
- * Interface used for managing player locales. Several default implementations are included
- * but plugins can also put their own locale resolvers in place. See {@link I18N#setLocaleResolver(LocaleResolver)}
+ * Interface used for managing locales and their storage. Several default implementations are included
+ * but implementations can also put their own locale resolvers in place. See {@link I18N#setLocaleResolver(LocaleResolver)}
  * for further details on this topic.
+ * <p>
+ * If a locale resolver implements the AutoCloseable interface all I18N implementations are required to invoke
+ * its .close() method before disposal.
  *
  * @author BlackyPaw
  * @version 1.0
@@ -20,26 +23,26 @@ import java.util.Locale;
 public interface LocaleResolver<Key> {
 
 	/**
-	 * Resolves a player's locale synchronously. This method must never return null. Therefore it
+	 * Resolves the locale belonging to the given key synchronously. This method must never return null. Therefore it
 	 * may return the fallback locale retrievable via {@link I18N#getFallbackLocale()} if
-	 * it cannot resolve a given player's locale instead. This method must be thread-safe.
+	 * it cannot resolve the locale of a given key instead. This method must be thread-safe.
 	 *
-	 * @param player The player to resolve the locale for
+	 * @param key The key to resolve the locale for
 	 *
-	 * @return The player's locale
+	 * @return The locale belonging the the given key
 	 */
-	Locale resolveLocale( Key player );
+	Locale resolveLocale( Key key );
 
 	/**
-	 * Attempts to change the given player's locale. On success the method should return true, on failure
+	 * Attempts to change the locale stored under key. On success the method should return true, on failure
 	 * it should return false. This method should be atomic, i.e. if one was to invoke {@link #resolveLocale(Key)}
-	 * right after this method returned he should get the player's new locale.
+	 * right after this method returns one should get the new locale already.
 	 *
-	 * @param player The player to set the locale of
+	 * @param key The key to set the locale of
 	 * @param locale The locale to set
 	 *
 	 * @return Whether or not the locale could be changed successfully
 	 */
-	boolean trySetPlayerLocale( Key player, Locale locale );
+	boolean trySetPlayerLocale( Key key, Locale locale );
 
 }

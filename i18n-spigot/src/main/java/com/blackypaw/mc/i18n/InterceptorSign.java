@@ -46,7 +46,7 @@ class InterceptorSign extends InterceptorBase {
 	private void onTileEntityData( PacketEvent event ) {
 		final Player                  player = event.getPlayer();
 		final PacketContainer packet = event.getPacket();
-		final Locale          locale = this.i18n.getPlayerLocale( player.getUniqueId() );
+		final Locale          locale = this.i18n.getLocale( player.getUniqueId() );
 		
 		if ( packet.getIntegers().read( 0 ) == 0x09 ) {
 			// Update Block Entity -> Set Sign Text:
@@ -82,7 +82,7 @@ class InterceptorSign extends InterceptorBase {
 	private void onMapChunk( PacketEvent event ) {
 		final Player          player = event.getPlayer();
 		final PacketContainer packet = event.getPacket();
-		final Locale          locale = this.i18n.getPlayerLocale( player.getUniqueId() );
+		final Locale          locale = this.i18n.getLocale( player.getUniqueId() );
 		
 		List handleList = packet.getSpecificModifier( List.class ).read( 0 );
 		for ( Object compoundHandle : handleList ) {

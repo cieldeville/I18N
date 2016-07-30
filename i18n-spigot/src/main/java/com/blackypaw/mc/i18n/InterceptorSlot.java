@@ -42,7 +42,7 @@ class InterceptorSlot extends InterceptorBase {
 	private void onSetSlot( PacketEvent event ) {
 		final Player                  player   = event.getPlayer();
 		final PacketContainer packet   = event.getPacket();
-		final Locale          language = this.i18n.getPlayerLocale( player.getUniqueId() );
+		final Locale          language = this.i18n.getLocale( player.getUniqueId() );
 		
 		ItemStack stack = packet.getItemModifier().read( 0 );
 		if ( stack != null ) {
@@ -75,7 +75,7 @@ class InterceptorSlot extends InterceptorBase {
 	private void onWindowItems( PacketEvent event ) {
 		final Player          player   = event.getPlayer();
 		final PacketContainer packet   = event.getPacket();
-		final Locale          language = this.i18n.getPlayerLocale( player.getUniqueId() );
+		final Locale          language = this.i18n.getLocale( player.getUniqueId() );
 		
 		boolean     changed = false;
 		ItemStack[] items   = packet.getItemArrayModifier().read( 0 );

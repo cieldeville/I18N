@@ -42,7 +42,7 @@ public class InjectionHandle {
 
 	/**
 	 * Gets the encoded injection string of this injection handle. This string is what should
-	 * be handed to any function requiring an actual string value such as {@link org.bukkit.entity.Player#sendMessage(String)}.
+	 * be handed to any function requiring an actual string value such as org.bukkit.entity.Player#sendMessage(String).
 	 *
 	 * @return The encoded string value of this injection handle
 	 */

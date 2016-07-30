@@ -68,11 +68,11 @@ public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseab
 	}
 
 	@Override
-	public Locale resolveLocale( UUID player ) {
+	public Locale resolveLocale( UUID key ) {
 		Locale locale;
 		try {
 			try ( PreparedStatement statement = this.connection.prepareStatement( "SELECT * FROM `" + this.localeTable + "` WHERE `uuid`=? LIMIT 1;" ) ) {
-				statement.setString( 1, player.toString() );
+				statement.setString( 1, key.toString() );
 				try ( ResultSet result = statement.executeQuery() ) {
 					if ( result.next() ) {
 						// Found a result!
@@ -80,7 +80,7 @@ public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseab
 					} else {
 						// No result found - insert fallback locale
 						locale = this.i18n.getFallbackLocale();
-						this.insertPlayerLocale( player, locale );
+						this.insertPlayerLocale( key, locale );
 					}
 				}
 			}
@@ -93,10 +93,10 @@ public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseab
 	}
 
 	@Override
-	public boolean trySetPlayerLocale( UUID player, Locale locale ) {
+	public boolean trySetPlayerLocale( UUID key, Locale locale ) {
 		try {
 			try ( PreparedStatement statement = this.connection.prepareStatement( "SELECT * FROM `" + this.localeTable + "` WHERE `uuid`=? LIMIT 1;" ) ) {
-				statement.setString( 1, player.toString() );
+				statement.setString( 1, key.toString() );
 				try ( ResultSet result = statement.executeQuery() ) {
 					if ( result.next() ) {
 						// Row does already exist:
@@ -110,7 +110,7 @@ public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseab
 						}
 					} else {
 						// No duplicate row found - insert locale
-						this.insertPlayerLocale( player, locale );
+						this.insertPlayerLocale( key, locale );
 					}
 				}
 			}
@@ -150,15 +150,15 @@ public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseab
 	/**
 	 * Attempts to insert a new row into the locales table.
 	 *
-	 * @param player The player whose locale should be stored
+	 * @param key The key to which the given locale should be stored
 	 * @param locale The locale to be stored
 	 *
 	 * @throws SQLException Thrown in case the underlying MySQL query failed
 	 */
-	private void insertPlayerLocale( UUID player, Locale locale ) throws SQLException {
+	private void insertPlayerLocale( UUID key, Locale locale ) throws SQLException {
 		try ( PreparedStatement insert = this.connection.prepareStatement( "INSERT INTO `" + this.localeTable + "` (`uuid`, `locale`) VALUES(?, ?);" ) ) {
 			locale = this.i18n.getFallbackLocale();
-			insert.setString( 1, player.toString() );
+			insert.setString( 1, key.toString() );
 			insert.setString( 2, locale.getLanguage() );
 			insert.executeUpdate();
 		}

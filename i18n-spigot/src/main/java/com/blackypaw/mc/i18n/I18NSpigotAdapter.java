@@ -33,9 +33,9 @@ import java.util.logging.Level;
 /**
  * Adapter class providing an I18N implementation for the Spigot platform.
  * <p>
- * This class is the entry pointer for accessing the I18N library when using Spigot. Using the static method
- * {@link #getI18N()} one can get an I18N implementation that is conform with Spigot and is automated in regards
- * to resolving player locales and injection handling.
+ * This class is the entry pointer for accessing the I18N library when using Spigot. Use the static method
+ * {@link #getI18N()} to get an I18N implementation that is conform with Spigot and is automated in regards
+ * to resolving player locales on login and unloading them as well as injection handling.
  * <p>
  * The I18N instance returned by this adapter is injection aware.
  *

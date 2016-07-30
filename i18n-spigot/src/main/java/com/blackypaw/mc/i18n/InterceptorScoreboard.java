@@ -47,7 +47,7 @@ class InterceptorScoreboard extends InterceptorBase {
 		int mode = packet.getIntegers().read( 0 );
 		if ( mode == 0 || mode == 2 ) {
 			String message     = packet.getStrings().read( 1 );
-			String translation = this.translateMessageIfAppropriate( this.i18n.getPlayerLocale( player.getUniqueId() ), message );
+			String translation = this.translateMessageIfAppropriate( this.i18n.getLocale( player.getUniqueId() ), message );
 			
 			if ( message != translation ) {
 				packet.getStrings().write( 1, translation );
@@ -60,7 +60,7 @@ class InterceptorScoreboard extends InterceptorBase {
 		final PacketContainer packet = event.getPacket();
 		
 		String message     = packet.getStrings().read( 0 );
-		String translation = this.translateMessageIfAppropriate( this.i18n.getPlayerLocale( player.getUniqueId() ), message );
+		String translation = this.translateMessageIfAppropriate( this.i18n.getLocale( player.getUniqueId() ), message );
 		
 		if ( message != translation ) {
 			packet.getStrings().write( 0, translation );
@@ -70,7 +70,7 @@ class InterceptorScoreboard extends InterceptorBase {
 	private void onScoreboardTeam( PacketEvent event ) {
 		final Player                  player = event.getPlayer();
 		final PacketContainer packet = event.getPacket();
-		final Locale          locale = this.i18n.getPlayerLocale( player.getUniqueId() );
+		final Locale          locale = this.i18n.getLocale( player.getUniqueId() );
 		
 		int mode = packet.getIntegers().read( 1 );
 		if ( mode == 0 || mode == 2 ) {

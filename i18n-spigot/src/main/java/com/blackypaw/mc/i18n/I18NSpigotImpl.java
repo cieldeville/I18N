@@ -79,12 +79,12 @@ class I18NSpigotImpl implements InjectionAwareI18N<UUID> {
 	}
 	
 	@Override
-	public Locale getPlayerLocale( UUID key ) {
+	public Locale getLocale( UUID key ) {
 		return this.localeStorage.get( key );
 	}
 	
 	@Override
-	public boolean trySetPlayerLocale( UUID key, Locale locale ) {
+	public boolean trySetLocale( UUID key, Locale locale ) {
 		if ( this.localeResolver.trySetPlayerLocale( key, locale ) ) {
 			this.storeLocale( key, locale );
 			

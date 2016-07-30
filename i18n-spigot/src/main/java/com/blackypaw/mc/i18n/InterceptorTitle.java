@@ -35,7 +35,7 @@ class InterceptorTitle extends InterceptorBase {
 		EnumWrappers.TitleAction action = packet.getTitleActions().read( 0 );
 		if ( action == EnumWrappers.TitleAction.TITLE || action == EnumWrappers.TitleAction.SUBTITLE ) {
 			String message     = this.restoreTextFromChatComponent( packet.getChatComponents().read( 0 ) );
-			String translation = this.translateMessageIfAppropriate( this.i18n.getPlayerLocale( player.getUniqueId() ), message );
+			String translation = this.translateMessageIfAppropriate( this.i18n.getLocale( player.getUniqueId() ), message );
 			
 			if ( message != translation ) {
 				packet.getChatComponents().write( 0, WrappedChatComponent.fromText( translation ) );

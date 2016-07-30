@@ -33,7 +33,7 @@ class InterceptorChat extends InterceptorBase {
 		final PacketContainer packet = event.getPacket();
 		
 		String message     = this.restoreTextFromChatComponent( packet.getChatComponents().read( 0 ) );
-		String translation = this.translateMessageIfAppropriate( this.i18n.getPlayerLocale( player.getUniqueId() ), message );
+		String translation = this.translateMessageIfAppropriate( this.i18n.getLocale( player.getUniqueId() ), message );
 		
 		if ( message != translation ) {
 			// Yes, the test of instance equality is what I want to do here
