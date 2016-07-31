@@ -16,7 +16,7 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-public class ConstantLocaleResolver<Key> implements LocaleResolver<Key> {
+class ConstantLocaleResolver<Key> implements LocaleResolver<Key> {
 
 	private final Locale locale;
 

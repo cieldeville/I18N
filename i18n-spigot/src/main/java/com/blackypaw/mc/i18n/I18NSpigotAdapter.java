@@ -74,6 +74,7 @@ public class I18NSpigotAdapter extends JavaPlugin {
 			this.i18n.close();
 		}
 		
+		this.i18n = null;
 		adapter = null;
 	}
 	

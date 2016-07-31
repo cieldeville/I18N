@@ -13,6 +13,7 @@
         <module>i18n-api</module>
         <module>i18n-spigot</module>
         <module>i18n-ext-yaml</module>
+        <module>i18n-bungeecord</module>
     </modules>
 
     <distributionManagement>

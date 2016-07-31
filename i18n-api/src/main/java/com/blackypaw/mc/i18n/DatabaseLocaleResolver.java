@@ -25,7 +25,7 @@ import java.util.UUID;
  * @author BlackyPaw
  * @version 1.0
  */
-public class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseable {
+class DatabaseLocaleResolver implements LocaleResolver<UUID>, AutoCloseable {
 
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_URL      = "jdbc:mysql://%s:%d/%s";

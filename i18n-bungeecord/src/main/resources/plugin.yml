@@ -1,0 +1,7 @@
+name: I18N
+version: ${project.version}
+main: com.blackypaw.mc.i18n.I18NBungeeCordAdapter
+author: BlackyPaw
+depends: []
+softDepends: []
+description: API for more thorough internationalization of plugins
