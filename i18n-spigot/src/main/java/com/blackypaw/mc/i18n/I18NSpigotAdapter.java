@@ -126,6 +126,7 @@ public class I18NSpigotAdapter extends JavaPlugin {
 		PropertyTranslationStorage storage = new PropertyTranslationStorage( this.i18n, new File( this.getDataFolder(), "translations" ), this.config.isAllowUserTranslations() );
 		this.tryLoadCommonLanguage( storage, Locale.ENGLISH );
 		this.tryLoadCommonLanguage( storage, Locale.GERMAN );
+		this.tryLoadCommonLanguage( storage, new Locale( "es" ) );
 		this.commonLocalizer = this.i18n.createLocalizer( storage );
 	}
 	
