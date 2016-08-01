@@ -14,10 +14,18 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 /**
+ * Implementation related class. Do not use under any circumstances - the only reason
+ * this is even public is that BungeeCord does not attempt to invoke .setAccessible( true )
+ * when reflecting event handlers, presumably because it does not want to get into trouble
+ * with security managers, and thus requires both the class as well as the method handling
+ * the actual event to be public.
+ * <p>
+ * TL;DR : Stay away!
+ *
  * @author BlackyPaw
  * @version 1.0
  */
-class PlayerDisconnectListener implements Listener {
+public class PlayerDisconnectListener implements Listener {
 	
 	private final I18NBungeeCordImpl i18n;
 	

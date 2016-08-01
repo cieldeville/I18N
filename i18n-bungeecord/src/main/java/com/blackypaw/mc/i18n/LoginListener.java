@@ -16,10 +16,18 @@ import net.md_5.bungee.event.EventPriority;
 import java.util.Locale;
 
 /**
+ * Implementation related class. Do not use under any circumstances - the only reason
+ * this is even public is that BungeeCord does not attempt to invoke .setAccessible( true )
+ * when reflecting event handlers, presumably because it does not want to get into trouble
+ * with security managers, and thus requires both the class as well as the method handling
+ * the actual event to be public.
+ * <p>
+ * TL;DR : Stay away!
+ *
  * @author BlackyPaw
  * @version 1.0
  */
-class LoginListener implements Listener {
+public class LoginListener implements Listener {
 	
 	private final I18NBungeeCordImpl i18n;
 	
@@ -28,7 +36,7 @@ class LoginListener implements Listener {
 	}
 	
 	// Preamble:
-	// This is just so utterly ugly - becuase of the fact that there is no reliable way to
+	// This is just so utterly ugly - because of the fact that there is no reliable way to
 	// tell whether or not another plugin might have cancelled the login event we must check
 	// whether or not all the pending connections we store a reference to internally
 	// are actually still connected and we must then remove them from our internal list if

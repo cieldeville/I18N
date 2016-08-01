@@ -18,6 +18,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
+ * I18N platform adapter for BungeeCord.
+ * <p>
+ * Use this class to get an implementation of the I18N interface on BungeeCord. Due to the nature of how
+ * BungeeCord works there is currently no support for injection functionality which is why one will not
+ * get any InjectionAware implementations from this adapter.
+ * <p>
+ * The actual implementation may be retrieved using {@link #getI18N()}.
+ *
  * @author BlackyPaw
  * @version 1.0
  */
@@ -25,6 +33,11 @@ public class I18NBungeeCordAdapter extends Plugin {
 	
 	private static I18NBungeeCordAdapter adapter;
 	
+	/**
+	 * Returns the actual I18N interface implementation provided by this adapter.
+	 *
+	 * @return The actual I18N interface implementation provided by this adapter
+	 */
 	public static I18N<UUID> getI18N() {
 		return adapter.i18n;
 	}

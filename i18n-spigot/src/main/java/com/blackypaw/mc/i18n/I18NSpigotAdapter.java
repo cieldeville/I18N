@@ -50,6 +50,11 @@ public class I18NSpigotAdapter extends JavaPlugin {
 	private Localizer      commonLocalizer;
 	private I18NSpigotImpl i18n;
 	
+	/**
+	 * Returns the actual I18N interface implementation provided by this adapter.
+	 *
+	 * @return The actual I18N interface implementation provided by this adapter
+	 */
 	public static InjectionAwareI18N<UUID> getI18N() {
 		return adapter.i18n;
 	}
