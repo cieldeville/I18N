@@ -127,6 +127,7 @@ public class I18NSpigotAdapter extends JavaPlugin {
 		this.tryLoadCommonLanguage( storage, Locale.ENGLISH );
 		this.tryLoadCommonLanguage( storage, Locale.GERMAN );
 		this.tryLoadCommonLanguage( storage, new Locale( "es" ) );
+		this.tryLoadCommonLanguage( storage, new Locale( "eu" ) );
 		this.commonLocalizer = this.i18n.createLocalizer( storage );
 	}
 	
