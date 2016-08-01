@@ -20,6 +20,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * This class is part of the i18n-ext-yaml API extension.
+ * <p>
  * Translation storage implementation supporting .yml files based off the
  * SnakeYaml parser already shipped as a dependency by Bukkit. Supports
  * lazy-loading and manual loading of translations.
