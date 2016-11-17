@@ -36,7 +36,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.10-SNAPSHOT</version>
+            <version>1.11-SNAPSHOT</version>
             <type>jar</type>
             <!-- Distributed alongside BungeeCord installation -->
             <scope>provided</scope>
