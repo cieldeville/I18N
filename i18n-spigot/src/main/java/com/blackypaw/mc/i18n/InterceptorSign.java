@@ -87,7 +87,7 @@ class InterceptorSign extends InterceptorBase {
 		List handleList = packet.getSpecificModifier( List.class ).read( 0 );
 		for ( Object compoundHandle : handleList ) {
 			NbtCompound compound = NbtFactory.fromNMSCompound( compoundHandle );
-			if ( compound.getString( "id" ).equals( "Sign" ) ) {
+			if ( compound.getString( "id" ).equals( "minecraft:sign" ) ) {
 				for ( int i = 1; i <= 4; ++i ) {
 					final String key = "Text" + i;
 					String message    = this.gson.fromJson( compound.getString( key ), ChatComponent.class ).getUnformattedText();

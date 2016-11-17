@@ -11,13 +11,18 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.EquivalentConverter;
+import com.comphenix.protocol.wrappers.BukkitConverters;
 import com.google.gson.Gson;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -77,11 +82,14 @@ class InterceptorSlot extends InterceptorBase {
 		final PacketContainer packet   = event.getPacket();
 		final Locale          language = this.i18n.getLocale( player.getUniqueId() );
 		
+		final EquivalentConverter<ItemStack> converter = BukkitConverters.getItemStackConverter();
+		
 		boolean     changed = false;
-		ItemStack[] items   = packet.getItemArrayModifier().read( 0 );
+		List        items   = packet.getSpecificModifier( List.class ).read( 0 );
 		if ( items != null ) {
-			for ( int i = 0; i < items.length; ++i ) {
-				ItemStack stack = items[i];
+			for ( int i = 0; i < items.size(); ++i ) {
+				// Convert NMS ItemStacks to Bukkit:
+				ItemStack stack = converter.getSpecific( items.get( i ) );
 				if ( stack == null ) {
 					continue;
 				}
@@ -103,7 +111,7 @@ class InterceptorSlot extends InterceptorBase {
 					if ( !changed ) {
 						// Construct a shallow clone of the array as we do NOT want
 						// to overwrite the original stack with the contents we modified:
-						items = Arrays.copyOf( items, items.length );
+						items = new ArrayList( items );
 					}
 					
 					// Got to clone the item stack here in order not to modify its original
@@ -112,7 +120,9 @@ class InterceptorSlot extends InterceptorBase {
 					meta = stack.getItemMeta();
 					meta.setDisplayName( translated );
 					stack.setItemMeta( meta );
-					items[i] = stack;
+					
+					// Convert Bukkit ItemStack to NMS:
+					items.set( i, converter.getGeneric( converter.getSpecificType(), stack ) );
 					
 					changed = true;
 				}
@@ -120,7 +130,7 @@ class InterceptorSlot extends InterceptorBase {
 			
 			if ( changed ) {
 				// Only write back when really needed:
-				packet.getItemArrayModifier().write( 0, items );
+				packet.getSpecificModifier( List.class ).write( 0, items );
 			}
 		}
 	}
