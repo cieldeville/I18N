@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * @author BlackyPaw
  * @version 1.0
  */
-class I18NSpigotImpl implements InjectionAwareI18N<UUID> {
+public class I18NSpigotImpl implements InjectionAwareI18N<UUID> {
 	
 	private final Logger logger;
 	

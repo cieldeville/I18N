@@ -5,8 +5,10 @@
  * This code is licensed under a BSD 3-Clause license. For further license details view the LICENSE file in the root folder of this source tree.
  */
 
-package com.blackypaw.mc.i18n;
+package com.blackypaw.mc.i18n.interceptor.v1_10;
 
+import com.blackypaw.mc.i18n.I18NSpigotImpl;
+import com.blackypaw.mc.i18n.InterceptorBase;
 import com.blackypaw.mc.i18n.event.PlayerLanguageSettingEvent;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -22,9 +24,9 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class InterceptorSettings extends InterceptorBase {
+public class InterceptorSettings extends InterceptorBase {
 	
-	InterceptorSettings( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
+	public InterceptorSettings( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
 		super( plugin, gson, i18n, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS );
 	}
 	

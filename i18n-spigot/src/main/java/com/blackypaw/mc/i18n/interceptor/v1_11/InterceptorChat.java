@@ -5,8 +5,10 @@
  * This code is licensed under a BSD 3-Clause license. For further license details view the LICENSE file in the root folder of this source tree.
  */
 
-package com.blackypaw.mc.i18n;
+package com.blackypaw.mc.i18n.interceptor.v1_11;
 
+import com.blackypaw.mc.i18n.I18NSpigotImpl;
+import com.blackypaw.mc.i18n.InterceptorBase;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
@@ -21,9 +23,9 @@ import org.bukkit.plugin.Plugin;
  * @author BlackyPaw
  * @version 1.0
  */
-class InterceptorChat extends InterceptorBase {
+public class InterceptorChat extends InterceptorBase {
 	
-	InterceptorChat( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
+	public InterceptorChat( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
 		super( plugin, gson, i18n, ListenerPriority.LOWEST, PacketType.Play.Server.CHAT );
 	}
 	

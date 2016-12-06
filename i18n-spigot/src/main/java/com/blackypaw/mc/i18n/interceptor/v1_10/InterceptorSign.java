@@ -5,8 +5,10 @@
  * This code is licensed under a BSD 3-Clause license. For further license details view the LICENSE file in the root folder of this source tree.
  */
 
-package com.blackypaw.mc.i18n;
+package com.blackypaw.mc.i18n.interceptor.v1_10;
 
+import com.blackypaw.mc.i18n.I18NSpigotImpl;
+import com.blackypaw.mc.i18n.InterceptorBase;
 import com.blackypaw.mc.i18n.chat.ChatComponent;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -28,9 +30,9 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class InterceptorSign extends InterceptorBase {
+public class InterceptorSign extends InterceptorBase {
 	
-	InterceptorSign( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
+	public InterceptorSign( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
 		super( plugin, gson, i18n, ListenerPriority.LOWEST, PacketType.Play.Server.TILE_ENTITY_DATA, PacketType.Play.Server.MAP_CHUNK );
 	}
 	
@@ -87,7 +89,8 @@ class InterceptorSign extends InterceptorBase {
 		List handleList = packet.getSpecificModifier( List.class ).read( 0 );
 		for ( Object compoundHandle : handleList ) {
 			NbtCompound compound = NbtFactory.fromNMSCompound( compoundHandle );
-			if ( compound.getString( "id" ).equals( "minecraft:sign" ) ) {
+			String id = compound.getString( "id" );
+			if ( id.equals( "minecraft:sign" ) || id.equals( "Sign" ) ) {
 				for ( int i = 1; i <= 4; ++i ) {
 					final String key = "Text" + i;
 					String message    = this.gson.fromJson( compound.getString( key ), ChatComponent.class ).getUnformattedText();

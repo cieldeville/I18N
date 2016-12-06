@@ -13,8 +13,11 @@ import com.blackypaw.mc.i18n.command.CommandLanguage;
 import com.blackypaw.mc.i18n.config.PluginConfig;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketListener;
+import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Properties;
@@ -164,13 +168,63 @@ public class I18NSpigotAdapter extends JavaPlugin {
 		gsonBuilder.registerTypeAdapter( ChatComponent.class, new ChatComponentDeserializer() );
 		Gson gson = gsonBuilder.create();
 		
-		ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-		protocolManager.addPacketListener( new InterceptorChat( this, gson, this.i18n ) );
-		protocolManager.addPacketListener( new InterceptorTitle( this, gson, this.i18n ) );
-		protocolManager.addPacketListener( new InterceptorScoreboard( this, gson, this.i18n ) );
-		protocolManager.addPacketListener( new InterceptorSign( this, gson, this.i18n ) );
-		protocolManager.addPacketListener( new InterceptorSettings( this, gson, this.i18n ) );
-		protocolManager.addPacketListener( new InterceptorSlot( this, gson, this.i18n ) );
+		ProtocolManager  protocolManager = ProtocolLibrary.getProtocolManager();
+		String           basePackage     = "com.blackypaw.mc.i18n.interceptor.";
+		MinecraftVersion version         = protocolManager.getMinecraftVersion();
+		
+		if ( version.getMajor() == 1 ) {
+			// Full Version:
+			if ( version.getMinor() == 11 ) {
+				basePackage += "v1_11";
+			} else if ( version.getMinor() == 10 ) {
+				basePackage += "v1_10";
+			} else if ( version.getMinor() == 9 ) {
+				if ( version.getBuild() > 2 ) {
+					basePackage += "v1_10";
+				} else {
+					basePackage += "v1_9_2";
+				}
+			} else {
+				basePackage = null;
+			}
+		} else {
+			basePackage = null;
+		}
+		
+		if ( basePackage == null ) {
+			this.getLogger().log( Level.SEVERE, "Failed to instantiate interceptors: this build supports Minecraft versions 1.11 - 1.11; please consider upgrading to the latest version" );
+			return;
+		}
+		
+		try {
+			protocolManager.addPacketListener( this.instantiatePacketListener( protocolManager, basePackage, "InterceptorChat", this, gson, this.i18n ) );
+			protocolManager.addPacketListener( this.instantiatePacketListener( protocolManager, basePackage, "InterceptorScoreboard", this, gson, this.i18n ) );
+			protocolManager.addPacketListener( this.instantiatePacketListener( protocolManager, basePackage, "InterceptorSettings", this, gson, this.i18n ) );
+			protocolManager.addPacketListener( this.instantiatePacketListener( protocolManager, basePackage, "InterceptorSign", this, gson, this.i18n ) );
+			protocolManager.addPacketListener( this.instantiatePacketListener( protocolManager, basePackage, "InterceptorSlot", this, gson, this.i18n ) );
+			protocolManager.addPacketListener( this.instantiatePacketListener( protocolManager, basePackage, "InterceptorTitle", this, gson, this.i18n ) );
+		} catch ( Exception e ) {
+			this.getLogger().log( Level.SEVERE, "Failed to instantiate interceptors", e );
+		}
+	}
+	
+	private PacketListener instantiatePacketListener( ProtocolManager protocolManager, String basePackage, String name, Object... args ) throws Exception {
+		String fullyQualifiedName = basePackage + "." + name;
+		try {
+			Class<?>                               clazz       = Class.forName( fullyQualifiedName, true, this.getClassLoader() );
+			if ( !InterceptorBase.class.isAssignableFrom( clazz ) ) {
+				throw new AssertionError( "Interceptor is not derived from InterceptorBase" );
+			}
+			Class<? extends InterceptorBase> checkedClass = (Class<? extends InterceptorBase>) clazz;
+			
+			Constructor<? extends InterceptorBase> constructor = checkedClass.getConstructor( Plugin.class, Gson.class, I18NSpigotImpl.class );
+			constructor.setAccessible( true );
+			
+			return constructor.newInstance( args );
+		} catch ( Throwable e ) {
+			MinecraftVersion minecraftVersion = protocolManager.getMinecraftVersion();
+			throw new Exception( "Could not instantiate interceptor '" + name + "' for Minecraft version " + minecraftVersion.getMajor() + "." + minecraftVersion.getMinor(), e );
+		}
 	}
 	
 }

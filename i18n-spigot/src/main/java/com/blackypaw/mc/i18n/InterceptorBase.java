@@ -21,12 +21,12 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class InterceptorBase extends PacketAdapter {
+public class InterceptorBase extends PacketAdapter {
 	
 	protected final Gson           gson;
 	protected final I18NSpigotImpl i18n;
 	
-	InterceptorBase( Plugin plugin, Gson gson, I18NSpigotImpl i18n, ListenerPriority priority, PacketType... types ) {
+	protected InterceptorBase( Plugin plugin, Gson gson, I18NSpigotImpl i18n, ListenerPriority priority, PacketType... types ) {
 		super( plugin, priority, types );
 		this.gson = gson;
 		this.i18n = i18n;

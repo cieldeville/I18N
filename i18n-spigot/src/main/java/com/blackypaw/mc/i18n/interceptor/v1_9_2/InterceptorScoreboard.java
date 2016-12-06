@@ -5,8 +5,10 @@
  * This code is licensed under a BSD 3-Clause license. For further license details view the LICENSE file in the root folder of this source tree.
  */
 
-package com.blackypaw.mc.i18n;
+package com.blackypaw.mc.i18n.interceptor.v1_9_2;
 
+import com.blackypaw.mc.i18n.I18NSpigotImpl;
+import com.blackypaw.mc.i18n.InterceptorBase;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
@@ -23,9 +25,9 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class InterceptorScoreboard extends InterceptorBase {
+public class InterceptorScoreboard extends InterceptorBase {
 	
-	InterceptorScoreboard( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
+	public InterceptorScoreboard( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
 		super( plugin, gson, i18n, ListenerPriority.LOWEST, PacketType.Play.Server.SCOREBOARD_OBJECTIVE, PacketType.Play.Server.SCOREBOARD_SCORE, PacketType.Play.Server.SCOREBOARD_TEAM );
 	}
 	

@@ -5,8 +5,10 @@
  * This code is licensed under a BSD 3-Clause license. For further license details view the LICENSE file in the root folder of this source tree.
  */
 
-package com.blackypaw.mc.i18n;
+package com.blackypaw.mc.i18n.interceptor.v1_10;
 
+import com.blackypaw.mc.i18n.I18NSpigotImpl;
+import com.blackypaw.mc.i18n.InterceptorBase;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
@@ -14,7 +16,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.wrappers.BukkitConverters;
 import com.google.gson.Gson;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,9 +30,9 @@ import java.util.Locale;
  * @author BlackyPaw
  * @version 1.0
  */
-class InterceptorSlot extends InterceptorBase {
+public class InterceptorSlot extends InterceptorBase {
 	
-	InterceptorSlot( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
+	public InterceptorSlot( Plugin plugin, Gson gson, I18NSpigotImpl i18n ) {
 		super( plugin, gson, i18n, ListenerPriority.LOWEST, PacketType.Play.Server.SET_SLOT, PacketType.Play.Server.WINDOW_ITEMS );
 	}
 	
@@ -45,7 +46,7 @@ class InterceptorSlot extends InterceptorBase {
 	}
 	
 	private void onSetSlot( PacketEvent event ) {
-		final Player                  player   = event.getPlayer();
+		final Player          player   = event.getPlayer();
 		final PacketContainer packet   = event.getPacket();
 		final Locale          language = this.i18n.getLocale( player.getUniqueId() );
 		
@@ -82,17 +83,15 @@ class InterceptorSlot extends InterceptorBase {
 		final PacketContainer packet   = event.getPacket();
 		final Locale          language = this.i18n.getLocale( player.getUniqueId() );
 		
-		final EquivalentConverter<ItemStack> converter = BukkitConverters.getItemStackConverter();
-		
 		boolean     changed = false;
-		List        items   = packet.getSpecificModifier( List.class ).read( 0 );
+		ItemStack[] items   = packet.getItemArrayModifier().read( 0 );
 		if ( items != null ) {
-			for ( int i = 0; i < items.size(); ++i ) {
-				// Convert NMS ItemStacks to Bukkit:
-				ItemStack stack = converter.getSpecific( items.get( i ) );
+			for ( int i = 0; i < items.length; ++i ) {
+				ItemStack stack = items[i];
 				if ( stack == null ) {
 					continue;
 				}
+				
 				ItemMeta meta = stack.getItemMeta();
 				if ( meta == null ) {
 					continue;
@@ -111,7 +110,7 @@ class InterceptorSlot extends InterceptorBase {
 					if ( !changed ) {
 						// Construct a shallow clone of the array as we do NOT want
 						// to overwrite the original stack with the contents we modified:
-						items = new ArrayList( items );
+						items = Arrays.copyOf( items, items.length );
 					}
 					
 					// Got to clone the item stack here in order not to modify its original
@@ -120,9 +119,7 @@ class InterceptorSlot extends InterceptorBase {
 					meta = stack.getItemMeta();
 					meta.setDisplayName( translated );
 					stack.setItemMeta( meta );
-					
-					// Convert Bukkit ItemStack to NMS:
-					items.set( i, converter.getGeneric( converter.getSpecificType(), stack ) );
+					items[i] = stack;
 					
 					changed = true;
 				}
@@ -130,7 +127,7 @@ class InterceptorSlot extends InterceptorBase {
 			
 			if ( changed ) {
 				// Only write back when really needed:
-				packet.getSpecificModifier( List.class ).write( 0, items );
+				packet.getItemArrayModifier().write( 0, items );
 			}
 		}
 	}
