@@ -184,6 +184,8 @@ public class I18NSpigotAdapter extends JavaPlugin {
 				} else {
 					basePackage += "v1_9_2";
 				}
+			} else if ( version.getMinor() == 8 ) {
+				basePackage += "v1_9_2";
 			} else {
 				basePackage = null;
 			}
