@@ -39,6 +39,13 @@ public class I18NSpigotImpl implements InjectionAwareI18N<UUID> {
 	}
 	
 	boolean initializeFromConfig( PluginConfig config ) {
+		this.localizerFactory = new LocalizerFactory( this.logger );
+		this.fallbackLocale = new Locale( config.getFallbackLocale() );
+		this.localeStorage = new HashMap<>();
+		this.shouldUseFallbackLocale = config.isUseFallbackLocale();
+		
+		this.logger.info( "Set fallback locale to " + ISO639.getName( this.fallbackLocale.getLanguage() ) );
+		
 		switch ( config.getDefaultLocaleResolver().toUpperCase() ) {
 			case "CONSTANT":
 				this.localeResolver = new ConstantLocaleResolver<>( this.fallbackLocale );
@@ -56,13 +63,6 @@ public class I18NSpigotImpl implements InjectionAwareI18N<UUID> {
 				this.logger.log( Level.SEVERE, "Unknown locale resolver '" + config.getDefaultLocaleResolver() + "'; please check the documentation for your version for supported values" );
 				return false;
 		}
-		
-		this.localizerFactory = new LocalizerFactory( this.logger );
-		this.fallbackLocale = new Locale( config.getFallbackLocale() );
-		this.localeStorage = new HashMap<>();
-		this.shouldUseFallbackLocale = config.isUseFallbackLocale();
-		
-		this.logger.info( "Set fallback locale to " + ISO639.getName( this.fallbackLocale.getLanguage() ) );
 		
 		return true;
 	}

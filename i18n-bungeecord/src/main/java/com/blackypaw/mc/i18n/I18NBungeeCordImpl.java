@@ -96,6 +96,12 @@ class I18NBungeeCordImpl implements I18N<UUID> {
 	}
 	
 	public boolean initializeFromConfig( PluginConfig config ) {
+		this.fallbackLocale = new Locale( config.getFallbackLocale() );
+		this.localeStorage = new ConcurrentHashMap<>();
+		this.shouldUseFallbackLocale = config.isUseFallbackLocale();
+		
+		this.logger.info( "Set fallback locale to " + ISO639.getName( this.fallbackLocale.getLanguage() ) );
+		
 		switch ( config.getDefaultLocaleResolver().toUpperCase() ) {
 			case "CONSTANT":
 				this.localeResolver = new ConstantLocaleResolver<>( this.fallbackLocale );
@@ -114,11 +120,6 @@ class I18NBungeeCordImpl implements I18N<UUID> {
 				return false;
 		}
 		
-		this.fallbackLocale = new Locale( config.getFallbackLocale() );
-		this.localeStorage = new ConcurrentHashMap<>();
-		this.shouldUseFallbackLocale = config.isUseFallbackLocale();
-		
-		this.logger.info( "Set fallback locale to " + ISO639.getName( this.fallbackLocale.getLanguage() ) );
 		return true;
 	}
 	
