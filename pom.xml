@@ -20,12 +20,12 @@
         <repository>
             <id>blackypaw-repo</id>
             <name>BlackyPaw Public Repository</name>
-            <url>http://repo.blackypaw.com/content/repositories/public-repo/</url>
+            <url>https://repo.blackypaw.com/content/repositories/public-repo/</url>
         </repository>
         <snapshotRepository>
             <id>blackypaw-snapshots</id>
             <name>BlackyPaw Snapshots Repository</name>
-            <url>http://repo.blackypaw.com/content/repositories/public-snapshots/</url>
+            <url>https://repo.blackypaw.com/content/repositories/public-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
