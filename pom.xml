@@ -7,7 +7,7 @@
     <groupId>com.blackypaw.mc</groupId>
     <artifactId>i18n</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.0-pre</version>
+    <version>1.4.0</version>
 
     <modules>
         <module>i18n-api</module>
