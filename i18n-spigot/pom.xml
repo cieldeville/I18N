@@ -5,7 +5,7 @@
     <parent>
         <artifactId>i18n</artifactId>
         <groupId>com.blackypaw.mc</groupId>
-        <version>1.3.1</version>
+        <version>1.4.0-pre</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,7 +33,7 @@
 	        
 	        <!-- GSON has been relocated to a Bukkit internal package in versions below MC v1.8                 -->
 	        <!-- Shade it into this build in order to allow for code-reuse instead of having an extra release   -->
-	        <!-- for these version                                                                              -->
+	        <!-- for these versions                                                                             -->
 			<build>
 				<plugins>
 					<plugin>
@@ -99,19 +99,19 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.11-R0.1-SNAPSHOT</version>
+            <version>1.12-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.11-R0.1-SNAPSHOT</version>
+            <version>1.12-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>4.2.0-SNAPSHOT</version>
+            <version>4.3.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
