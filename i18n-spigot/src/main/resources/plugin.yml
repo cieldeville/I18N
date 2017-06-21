@@ -13,4 +13,4 @@ commands:
     aliases: [lang, i18n]
     permission: com.blackypaw.mc.i18n.command.language
     permission-message: You do not have sufficient privileges!
-    usage: Syntax error! Perhaps you meant /<command> [language]
+    usage: /<command> [language]
